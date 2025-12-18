@@ -30,3 +30,79 @@
   padding: 8px 12px;
   font-size: 13px;
 }
+.doc-section {
+  margin-top: 32px;
+  padding: 20px;
+  background: var(--bg-surface);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.camera-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.camera-box video {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.preview {
+  margin-top: 16px;
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.loading {
+  margin-top: 12px;
+  color: var(--text-secondary);
+}
+
+.ocr-card {
+  margin-top: 16px;
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.field {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.confirm {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+}
+.upload-alt {
+  margin-top: 12px;
+}
+
+.upload-alt input {
+  font-size: 13px;
+}
+
+.reupload {
+  margin-top: 12px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+}
+
+.ocr-card textarea {
+  width: 100%;
+  height: 140px;
+  margin-top: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  font-size: 13px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}

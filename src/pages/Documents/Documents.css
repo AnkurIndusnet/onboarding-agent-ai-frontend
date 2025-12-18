@@ -2,19 +2,66 @@
   padding: 32px;
 }
 
-.documents pre {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  padding: 20px;
-  border-radius: 12px;
-  font-size: 13px;
+/* CAMERA */
+.camera-box {
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
 }
 
-.documents button.generate {
+.camera-box video {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* PREVIEW */
+.preview-box img {
+  max-width: 100%;
+  border-radius: 12px;
   margin-top: 16px;
+}
+
+/* LOADING */
+.loading {
+  margin-top: 16px;
+  color: var(--text-secondary);
+}
+
+/* OCR CARD */
+.ocr-card {
+  margin-top: 24px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 420px;
+}
+
+.ocr-card h3 {
+  margin-bottom: 16px;
+}
+
+.field {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.field span {
+  color: var(--text-secondary);
+}
+
+.confirm {
+  margin-top: 16px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
   background: var(--accent);
   color: white;
-  border-radius: 6px;
-  font-size: 14px;
 }

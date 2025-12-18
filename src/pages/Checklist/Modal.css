@@ -1,0 +1,132 @@
+/* BACKDROP */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* MODAL */
+.modal {
+  background: var(--bg-surface);
+  border-radius: 16px;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* HEADER */
+.modal h3 {
+  padding: 16px 20px;
+  margin: 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* BODY */
+.modal-body {
+  padding: 16px 20px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* SECTION */
+.modal-section {
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* HINT */
+.modal-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* CAMERA */
+.camera-frame {
+  width: 100%;
+  height: 220px;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.camera-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-actions {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+}
+
+/* FORM */
+.form-field {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.form-field label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.form-field input,
+.modal textarea {
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* FOOTER */
+.modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 12px;
+}
+
+.modal-footer button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.close {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .modal-backdrop {
+    align-items: flex-end;
+  }
+
+  .modal {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 16px 16px 0 0;
+  }
+}
