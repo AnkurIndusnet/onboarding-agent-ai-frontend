@@ -1,0 +1,35 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #ffffff;
+}
+
+.brand {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.navbar-center a {
+  margin-right: 16px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+}
+
+.navbar-center a:hover {
+  text-decoration: underline;
+}
+
+.user {
+  font-size: 13px;
+  color: #555;
+}
+.logout {
+  margin-left: 12px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}

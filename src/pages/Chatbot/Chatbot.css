@@ -1,0 +1,25 @@
+.chatbot {
+  padding: 24px;
+}
+
+.chat-window {
+  border: 1px solid #ddd;
+  padding: 16px;
+  height: 300px;
+  overflow-y: auto;
+}
+
+.chat-bubble {
+  margin-bottom: 8px;
+  padding: 8px;
+  max-width: 70%;
+}
+
+.chat-bubble.bot {
+  background: #f1f1f1;
+}
+
+.chat-bubble.user {
+  background: #dbeafe;
+  margin-left: auto;
+}
