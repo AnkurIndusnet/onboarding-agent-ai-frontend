@@ -3,12 +3,12 @@
 }
 
 .chat-window {
-  background: #ffffff;
+  background: var(--bg-surface);
   height: 360px;
   border-radius: 12px;
   padding: 16px;
   overflow-y: auto;
-  box-shadow: inset 0 0 0 1px #e5e7eb;
+  border: 1px solid var(--border-color);
 }
 
 .chat-bubble {
@@ -21,11 +21,12 @@
 }
 
 .chat-bubble.bot {
-  background: #f3f4f6;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
 .chat-bubble.user {
-  background: #2563eb;
+  background: var(--accent);
   color: white;
   margin-left: auto;
 }

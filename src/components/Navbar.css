@@ -1,31 +1,42 @@
 .navbar {
   height: 60px;
-  background: #ffffff;
+  background: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  z-index: 1000;
 }
 
 .brand {
   font-weight: 700;
   font-size: 18px;
-  color: #2563eb;
+  color: var(--accent);
 }
 
-.navbar-center a {
+/* DESKTOP NAV */
+.navbar-center {
+  display: flex;
+  align-items: center;
+}
+
+.nav-link {
   margin-right: 18px;
   font-size: 14px;
   font-weight: 500;
+  color: var(--text-secondary);
   text-decoration: none;
-  color: #374151;
+  padding-bottom: 4px;
 }
 
-.navbar-center a:hover {
-  color: #2563eb;
+.nav-link.active {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
 }
 
+/* RIGHT */
 .navbar-right {
   display: flex;
   align-items: center;
@@ -34,11 +45,81 @@
 
 .user {
   font-size: 13px;
-  color: #374151;
+  color: var(--text-secondary);
+}
+
+.theme-toggle,
+.logout {
+  background: transparent;
+  cursor: pointer;
 }
 
 .logout {
-  background: transparent;
   color: #dc2626;
-  font-size: 13px;
+}
+
+/* HAMBURGER (Animated) */
+.hamburger {
+  display: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.hamburger:hover {
+  background: var(--bg-elevated);
+}
+
+/* BACKDROP */
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  z-index: 998;
+}
+
+/* SIDE DRAWER */
+.side-drawer {
+  position: fixed;
+  top: 0;
+  right: -280px;
+  width: 260px;
+  height: 100vh;
+  background: var(--bg-surface);
+  padding: 80px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 999;
+  transition: right 0.3s ease;
+  border-left: 1px solid var(--border-color);
+}
+
+.side-drawer.open {
+  right: 0;
+}
+
+.side-drawer a {
+  text-decoration: none;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.side-drawer a.active {
+  color: var(--accent);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .navbar-center {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+  }
 }

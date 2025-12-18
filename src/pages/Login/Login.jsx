@@ -24,10 +24,6 @@ const Login = () => {
       <input placeholder="Password" type="password" />
 
       <button onClick={handleLogin}>Login</button>
-
-      <p className="demo-info">
-        Demo login → {demoUser.name} ({demoUser.role})
-      </p>
     </div>
   );
 };

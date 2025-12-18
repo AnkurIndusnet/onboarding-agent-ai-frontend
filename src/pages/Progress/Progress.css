@@ -1,7 +1,7 @@
 .progress {
   padding: 32px;
-  background: #ffffff;
+  background: var(--bg-surface);
   margin: 32px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
 }

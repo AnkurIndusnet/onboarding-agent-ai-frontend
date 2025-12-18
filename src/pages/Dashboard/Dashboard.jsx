@@ -1,4 +1,5 @@
 import "./Dashboard.css";
+import ProgressBar from "../../components/ProgressBar";
 
 const Dashboard = () => {
   const dashboardData = {
@@ -9,12 +10,31 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <h2>Welcome, Amit 👋</h2>
+      <h2 className="dashboard-title">Welcome, Amit 👋</h2>
 
+      {/* Readiness section */}
+      <div className="dashboard-section">
+        <ProgressBar value={dashboardData.readinessScore} />
+      </div>
+
+      {/* Stats cards */}
       <div className="cards">
-        <div className="card">Readiness Score: {dashboardData.readinessScore}%</div>
-        <div className="card">Pending Tasks: {dashboardData.pendingTasks}</div>
-        <div className="card">Completed Tasks: {dashboardData.completedTasks}</div>
+        <div className="card">
+          <div className="card-label">Pending Tasks</div>
+          <div className="card-value">{dashboardData.pendingTasks}</div>
+        </div>
+
+        <div className="card">
+          <div className="card-label">Completed Tasks</div>
+          <div className="card-value">{dashboardData.completedTasks}</div>
+        </div>
+
+        <div className="card highlight">
+          <div className="card-label">Readiness Score</div>
+          <div className="card-value">
+            {dashboardData.readinessScore}%
+          </div>
+        </div>
       </div>
     </div>
   );
