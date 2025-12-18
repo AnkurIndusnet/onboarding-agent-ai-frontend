@@ -1,14 +1,33 @@
+.checklist {
+  padding: 32px;
+}
+
 .check-item {
+  background: #ffffff;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
 .completed {
-  color: green;
+  color: #16a34a;
+  font-weight: 600;
 }
 
 .pending {
-  color: orange;
+  color: #d97706;
+  font-weight: 600;
+}
+.check-item button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
 }

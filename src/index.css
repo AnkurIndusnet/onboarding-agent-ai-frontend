@@ -11,3 +11,39 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #f4f6f8;
+  color: #1f2937;
+}
+
+h2 {
+  margin-bottom: 16px;
+}
+
+button {
+  border: none;
+  background-color: #2563eb;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+}
+
+input {
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  padding: 10px;
+  font-size: 14px;
+}

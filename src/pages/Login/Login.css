@@ -1,23 +1,32 @@
 .login-container {
-  max-width: 360px;
-  margin: 80px auto;
-  padding: 24px;
-  border: 1px solid #ddd;
+  max-width: 380px;
+  margin: 120px auto;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.login-container h2 {
+  text-align: center;
+  margin-bottom: 24px;
 }
 
 .login-container input {
   width: 100%;
-  margin-bottom: 12px;
-  padding: 8px;
+  margin-bottom: 14px;
 }
 
 .login-container button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .demo-info {
   margin-top: 16px;
-  font-size: 13px;
-  color: gray;
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
 }
