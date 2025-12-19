@@ -1,0 +1,60 @@
+.announce-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.announce-modal {
+  background: var(--bg-surface);
+  width: 480px;
+  max-width: 95vw;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.announce-modal h3 {
+  padding: 16px 20px;
+  margin: 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.announce-modal-body {
+  padding: 16px 20px;
+}
+
+.announce-modal-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.announce-modal-section {
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.announce-field label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.announce-field textarea {
+  width: 100%;
+  margin-top: 6px;
+  min-height: 120px;
+}
+
+.announce-modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 12px;
+}

@@ -1,32 +1,48 @@
 import { useState } from "react";
+import MultiSelectDropdown from "../../common/MultiSelectDropdown";
 import { TASK_PRESETS } from "./dashboardPresets";
-import "../Checklist/modal.css";
+import "./AddTaskModal.css";
 
 const AddTaskModal = ({ onClose }) => {
-  const [type, setType] = useState("DOCUMENT");
+  const [taskType, setTaskType] = useState([]);
+  const [presets, setPresets] = useState([]);
+  const [employees, setEmployees] = useState([]);
 
   return (
-    <div className="modal-backdrop modal-opening">
-      <div className="modal modal-opening">
+    <div className="task-modal-backdrop">
+      <div className="task-modal">
         <h3>Assign Task</h3>
 
-        <div className="modal-body">
-          <label>Task Type</label>
-          <select onChange={(e) => setType(e.target.value)}>
-            <option value="DOCUMENT">Document Upload</option>
-            <option value="ESIGN">E-Signature</option>
-            <option value="TRAINING">Training</option>
-          </select>
+        <div className="task-modal-body">
+          <MultiSelectDropdown
+            label="Task Type"
+            placeholder="Select task type"
+            options={["DOCUMENT", "ESIGN", "TRAINING"]}
+            selected={taskType}
+            setSelected={setTaskType}
+          />
 
-          <label>Preset Tasks</label>
-          <ul>
-            {TASK_PRESETS[type].map(t => <li key={t}>{t}</li>)}
-          </ul>
+          <MultiSelectDropdown
+            label="Presets"
+            placeholder="Select presets"
+            options={taskType.flatMap(t => TASK_PRESETS[t] || [])}
+            selected={presets}
+            setSelected={setPresets}
+          />
+
+          <MultiSelectDropdown
+            label="Employees"
+            placeholder="Search employees"
+            options={["Amit Sharma", "Neha Verma", "Rahul Singh"]}
+            selected={employees}
+            setSelected={setEmployees}
+            searchable
+          />
         </div>
 
-        <div className="modal-footer">
+        <div className="task-modal-footer">
           <button className="btn success">Assign</button>
-          <button className="close" onClick={onClose}>Cancel</button>
+          <button className="btn secondary" onClick={onClose}>Cancel</button>
         </div>
       </div>
     </div>

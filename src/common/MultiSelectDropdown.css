@@ -1,0 +1,81 @@
+.msd {
+  width: 100%;
+  position: relative;
+}
+
+.msd label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* INPUT */
+.msd-input {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.msd-input:hover {
+  border-color: var(--accent);
+}
+
+.caret {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* PANEL */
+.msd-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+/* SEARCH */
+.msd-search {
+  width: calc(100% - 16px);
+  margin: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+/* OPTION */
+.msd-option {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.msd-option:hover {
+  background: var(--bg-elevated);
+}
+
+.msd-empty {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* MOBILE SAFE */
+@media (max-width: 768px) {
+  .msd-panel {
+    max-height: 200px;
+  }
+}

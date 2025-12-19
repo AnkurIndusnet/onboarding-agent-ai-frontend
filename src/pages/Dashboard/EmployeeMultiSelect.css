@@ -1,0 +1,23 @@
+.emp-select input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.emp-options {
+  margin-top: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.emp-options label {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  cursor: pointer;
+}
