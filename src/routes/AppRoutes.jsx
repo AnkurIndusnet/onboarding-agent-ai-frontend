@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Login from "../pages/Login/Login";
-import Dashboard from "../pages/Dashboard/Dashboard";
+import Dashboard from "../pages/Dashboard/UserDashboard";
 import Chatbot from "../pages/Chatbot/Chatbot";
 import Checklist from "../pages/Checklist/Checklist";
 import Documents from "../pages/Documents/Documents";
