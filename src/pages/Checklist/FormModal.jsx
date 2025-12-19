@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import "./Modal.css";
+import "./modal.css";
 
 const FormModal = ({ item, onClose, onSuccess }) => {
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [closing, setClosing] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -26,9 +27,14 @@ const FormModal = ({ item, onClose, onSuccess }) => {
     setTimeout(onSuccess, 500);
   };
 
+  const close = () => {
+    setClosing(true);
+    setTimeout(onClose, 200);
+  };
+
   return (
-    <div className="modal-backdrop">
-      <div className="modal">
+    <div className={`modal-backdrop ${closing ? "modal-closing" : "modal-opening"}`}>
+      <div className={`modal ${closing ? "modal-closing" : "modal-opening"}`}>
         <h3>{item.task}</h3>
 
         <div className="modal-body">
@@ -58,7 +64,7 @@ const FormModal = ({ item, onClose, onSuccess }) => {
           <button onClick={save} disabled={loading}>
             Save & Continue
           </button>
-          <button className="close" onClick={onClose}>
+          <button className="close" onClick={close}>
             Cancel
           </button>
         </div>

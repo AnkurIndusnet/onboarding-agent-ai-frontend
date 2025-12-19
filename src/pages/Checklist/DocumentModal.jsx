@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import Tesseract from "tesseract.js";
-import "./Modal.css";
+import "./modal.css";
 
 const DocumentModal = ({ item, onClose, onSuccess }) => {
   const videoRef = useRef(null);
@@ -10,8 +10,8 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
   const [ocrText, setOcrText] = useState("");
   const [loading, setLoading] = useState(false);
   const [cameraStarted, setCameraStarted] = useState(false);
+  const [closing, setClosing] = useState(false);
 
-  /* ---------- CAMERA ---------- */
   const startCamera = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     videoRef.current.srcObject = stream;
@@ -19,72 +19,57 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
   };
 
   const stopCamera = () => {
-    const stream = videoRef.current?.srcObject;
-    stream?.getTracks().forEach(t => t.stop());
+    videoRef.current?.srcObject?.getTracks().forEach(t => t.stop());
   };
 
   const capture = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d").drawImage(video, 0, 0);
-
-    const img = canvas.toDataURL("image/png");
     stopCamera();
     setCameraStarted(false);
-    processOCR(img);
+    processOCR(canvas.toDataURL("image/png"));
   };
 
-  /* ---------- OCR ---------- */
   const processOCR = async (img) => {
     setImage(img);
     setLoading(true);
-    setOcrText("");
-
     const res = await Tesseract.recognize(img, "eng");
     setOcrText(res.data.text);
     setLoading(false);
   };
 
-  /* ---------- RE-CAPTURE ---------- */
   const recapture = () => {
     setImage(null);
     setOcrText("");
-    setLoading(false);
     startCamera();
   };
 
-  /* ---------- SAVE ---------- */
   const save = () => {
-    // simulate API 200
     setTimeout(onSuccess, 500);
   };
 
+  const close = () => {
+    setClosing(true);
+    setTimeout(onClose, 200);
+  };
+
   return (
-    <div className="modal-backdrop">
-      <div className="modal">
-        {/* HEADER */}
+    <div className={`modal-backdrop ${closing ? "modal-closing" : "modal-opening"}`}>
+      <div className={`modal ${closing ? "modal-closing" : "modal-opening"}`}>
         <h3>{item.task}</h3>
 
-        {/* BODY */}
         <div className="modal-body">
           <p className="modal-hint">
             Capture a clear photo of your Aadhaar card.
           </p>
 
           <div className="modal-section">
-            {/* CAMERA OR IMAGE */}
             {!image ? (
               <div className="camera-frame">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                />
-
+                <video ref={videoRef} autoPlay playsInline muted />
                 <div className="camera-actions">
                   {!cameraStarted ? (
                     <button onClick={startCamera}>Open Camera</button>
@@ -99,7 +84,6 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
                   <img src={image} alt="Captured Aadhaar" />
                 </div>
 
-                {/* RE-CAPTURE BUTTON (OUTSIDE IMAGE PREVIEW) */}
                 <button className="recapture-btn" onClick={recapture}>
                   Re-capture
                 </button>
@@ -108,7 +92,6 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
 
             <canvas ref={canvasRef} hidden />
 
-            {/* OCR RESULT */}
             {loading && <p>Extracting text…</p>}
 
             {ocrText && (
@@ -123,12 +106,11 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
           </div>
         </div>
 
-        {/* FOOTER */}
         <div className="modal-footer">
           <button onClick={save} disabled={!ocrText || loading}>
             Save & Continue
           </button>
-          <button className="close" onClick={onClose}>
+          <button className="close" onClick={close}>
             Cancel
           </button>
         </div>

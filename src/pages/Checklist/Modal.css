@@ -197,3 +197,58 @@
     border-radius: 16px;
   }
 }
+
+/* =========================
+   ANIMATIONS (NON-BREAKING)
+========================= */
+
+/* OPEN */
+.modal-opening {
+  animation: modalIn 0.25s ease forwards;
+}
+
+.modal-backdrop.modal-opening {
+  animation: backdropIn 0.25s ease forwards;
+}
+
+/* CLOSE */
+.modal-closing {
+  animation: modalOut 0.2s ease forwards;
+}
+
+.modal-backdrop.modal-closing {
+  animation: backdropOut 0.2s ease forwards;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes backdropOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+

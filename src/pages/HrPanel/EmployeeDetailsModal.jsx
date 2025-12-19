@@ -1,4 +1,6 @@
+import { useState } from "react";
 import "./EmployeeDetailsModal.css";
+import "../Checklist/modal.css";
 
 const data = {
   documentSubmission: [
@@ -34,42 +36,43 @@ const data = {
 };
 
 const EmployeeDetailsModal = ({ employee, onClose }) => {
+  const [closing, setClosing] = useState(false);
+
+  const close = () => {
+    setClosing(true);
+    setTimeout(onClose, 200);
+  };
+
   const action = (type, item) => {
     console.log("API CALL:", type, item.fileName);
   };
 
-  const renderActions = (item) => {
-    return (
-      <div className="actions">
-        {item.status === "Pending" && (
-          <button onClick={() => action("reminder", item)}>
-            Send Reminder
-          </button>
-        )}
+  const renderActions = (item) => (
+    <div className="actions">
+      {item.status === "Pending" && (
+        <button onClick={() => action("reminder", item)}>Send Reminder</button>
+      )}
 
-        {item.status === "Completed" && (
-          <>
-            <button onClick={() => action("accept", item)}>Accept</button>
-            <button onClick={() => action("reject", item)}>Reject</button>
-            <button onClick={() => action("rework", item)}>Request Rework</button>
-          </>
-        )}
+      {item.status === "Completed" && (
+        <>
+          <button onClick={() => action("accept", item)}>Accept</button>
+          <button onClick={() => action("reject", item)}>Reject</button>
+          <button onClick={() => action("rework", item)}>Request Rework</button>
+        </>
+      )}
 
-        {item.status === "Verified" && (
-          <button onClick={() => action("rework", item)}>
-            Request Rework
-          </button>
-        )}
+      {item.status === "Verified" && (
+        <button onClick={() => action("rework", item)}>Request Rework</button>
+      )}
 
-        {item.fileName && (
-          <>
-            <button onClick={() => action("preview", item)}>Preview</button>
-            <button onClick={() => action("download", item)}>Download</button>
-          </>
-        )}
-      </div>
-    );
-  };
+      {item.fileName && (
+        <>
+          <button onClick={() => action("preview", item)}>Preview</button>
+          <button onClick={() => action("download", item)}>Download</button>
+        </>
+      )}
+    </div>
+  );
 
   const renderSection = (title, items) => (
     <div className="section">
@@ -94,8 +97,8 @@ const EmployeeDetailsModal = ({ employee, onClose }) => {
   );
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal">
+    <div className={`modal-backdrop ${closing ? "modal-closing" : "modal-opening"}`}>
+      <div className={`modal ${closing ? "modal-closing" : "modal-opening"}`}>
         <h3>{employee.name} · Onboarding Progress</h3>
 
         <div className="modal-body">
@@ -105,7 +108,7 @@ const EmployeeDetailsModal = ({ employee, onClose }) => {
         </div>
 
         <div className="modal-footer">
-          <button className="close" onClick={onClose}>Close</button>
+          <button className="close" onClick={close}>Close</button>
         </div>
       </div>
     </div>
