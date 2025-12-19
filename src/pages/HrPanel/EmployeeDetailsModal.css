@@ -1,0 +1,49 @@
+.section {
+  margin-bottom: 24px;
+}
+
+.section h4 {
+  margin-bottom: 12px;
+}
+
+.step {
+  border-left: 3px solid var(--accent);
+  padding-left: 16px;
+  margin-bottom: 16px;
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+}
+
+.status.completed {
+  color: #22c55e;
+}
+
+.status.pending {
+  color: #f59e0b;
+}
+
+.status.verified {
+  color: #3b82f6;
+}
+
+.doc-no {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 6px 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+}

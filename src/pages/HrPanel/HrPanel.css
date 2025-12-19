@@ -2,12 +2,25 @@
   padding: 32px;
 }
 
-.employee {
+.employee-row {
   background: var(--bg-surface);
-  padding: 14px 18px;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
-  border: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.muted {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px;
 }
