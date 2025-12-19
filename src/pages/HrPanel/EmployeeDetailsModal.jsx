@@ -1,6 +1,14 @@
 import { useState } from "react";
 import "./EmployeeDetailsModal.css";
 import "../Checklist/modal.css";
+import {
+  Bell,
+  CheckCircle,
+  XCircle,
+  RotateCcw,
+  Eye,
+  Download
+} from "lucide-react";
 
 const data = {
   documentSubmission: [
@@ -48,32 +56,67 @@ const EmployeeDetailsModal = ({ employee, onClose }) => {
   };
 
   const renderActions = (item) => (
-    <div className="actions">
-      {item.status === "Pending" && (
-        <button onClick={() => action("reminder", item)}>Send Reminder</button>
-      )}
+  <div className="actions">
+    {item.status === "Pending" && (
+      <button className="btn info" onClick={() => action("reminder", item)}>
+        <Bell size={16} /> Reminder
+      </button>
+    )}
 
-      {item.status === "Completed" && (
-        <>
-          <button onClick={() => action("accept", item)}>Accept</button>
-          <button onClick={() => action("reject", item)}>Reject</button>
-          <button onClick={() => action("rework", item)}>Request Rework</button>
-        </>
-      )}
+    {item.status === "Completed" && (
+      <>
+       <button
+          className="btn success mobile-icon-only"
+          onClick={() => action("accept", item)}
+        >
+          <CheckCircle size={16} />
+          <span>Accept</span>
+        </button>
 
-      {item.status === "Verified" && (
-        <button onClick={() => action("rework", item)}>Request Rework</button>
-      )}
 
-      {item.fileName && (
-        <>
-          <button onClick={() => action("preview", item)}>Preview</button>
-          <button onClick={() => action("download", item)}>Download</button>
-        </>
-      )}
-    </div>
-  );
+        <button
+          className="btn danger mobile-icon-only"
+          onClick={() => action("reject", item)}
+        >
+          <XCircle size={16} />
+          <span>Reject</span>
+        </button>
 
+        <button
+          className="btn warning mobile-icon-only"
+          onClick={() => action("rework", item)}
+        >
+          <RotateCcw size={16} />
+          <span>Rework</span>
+        </button>
+      </>
+    )}
+
+    {item.status === "Verified" && (
+      <button
+        className="btn secondary mobile-icon-only"
+        onClick={() => action("preview", item)}
+      >
+        <Eye size={16} />
+        <span>Preview</span>
+      </button>
+    )}
+
+    {item.fileName && (
+      <>
+        <button className="btn secondary" onClick={() => action("preview", item)}>
+          <Eye size={16} /> Preview
+        </button>
+
+        <button className="btn secondary" onClick={() => action("download", item)}>
+          <Download size={16} /> Download
+        </button>
+      </>
+    )}
+  </div>
+);
+
+  
   const renderSection = (title, items) => (
     <div className="section">
       <h4>{title}</h4>

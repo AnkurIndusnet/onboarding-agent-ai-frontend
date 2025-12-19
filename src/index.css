@@ -128,3 +128,75 @@ input {
     height: 280px;
   }
 }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.btn svg {
+  stroke-width: 2;
+}
+
+/* Variants */
+.btn.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn.secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn.success {
+  background: #22c55e;
+  color: #fff;
+}
+
+.btn.danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn.warning {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.btn.info {
+  background: #3b82f6;
+  color: #fff;
+}
+
+/* States */
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+/* MOBILE ICON-ONLY BUTTONS */
+@media (max-width: 640px) {
+  .btn.mobile-icon-only span {
+    display: none; /* hide text */
+  }
+
+  .btn.mobile-icon-only {
+    padding: 8px;
+    min-width: 36px;
+    justify-content: center;
+  }
+}

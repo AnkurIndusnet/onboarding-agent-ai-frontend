@@ -1,6 +1,14 @@
 import { useRef, useState } from "react";
 import Tesseract from "tesseract.js";
 import "./modal.css";
+import {
+  Camera,
+  Aperture,
+  RotateCcw,
+  Save,
+  X
+} from "lucide-react";
+
 
 const DocumentModal = ({ item, onClose, onSuccess }) => {
   const videoRef = useRef(null);
@@ -54,6 +62,7 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
   const close = () => {
     setClosing(true);
     setTimeout(onClose, 200);
+    stopCamera();
   };
 
   return (
@@ -72,9 +81,21 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
                 <video ref={videoRef} autoPlay playsInline muted />
                 <div className="camera-actions">
                   {!cameraStarted ? (
-                    <button onClick={startCamera}>Open Camera</button>
+                   <button
+                    className="btn primary mobile-icon-only"
+                    onClick={startCamera}
+                  >
+                    <Camera size={16} />
+                    <span>Open Camera</span>
+                  </button>
                   ) : (
-                    <button onClick={capture}>Capture</button>
+                   <button
+                    className="btn primary mobile-icon-only"
+                    onClick={capture}
+                  >
+                    <Aperture size={16} />
+                    <span>Capture</span>
+                  </button>
                   )}
                 </div>
               </div>
@@ -84,9 +105,13 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
                   <img src={image} alt="Captured Aadhaar" />
                 </div>
 
-                <button className="recapture-btn" onClick={recapture}>
-                  Re-capture
-                </button>
+               <button
+                className="btn warning mobile-icon-only"
+                onClick={recapture}
+              >
+                <RotateCcw size={16} />
+                <span>Re-capture</span>
+              </button>
               </>
             )}
 
@@ -106,12 +131,22 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
           </div>
         </div>
 
-        <div className="modal-footer">
-          <button onClick={save} disabled={!ocrText || loading}>
-            Save & Continue
+       <div className="modal-footer">
+         <button
+            className="btn success mobile-icon-only"
+            onClick={save}
+            disabled={!ocrText || loading}
+          >
+            <Save size={16} />
+            <span>Save & Continue</span>
           </button>
-          <button className="close" onClick={close}>
-            Cancel
+
+          <button
+            className="btn secondary mobile-icon-only"
+            onClick={close}
+          >
+            <X size={16} />
+            <span>Cancel</span>
           </button>
         </div>
       </div>
