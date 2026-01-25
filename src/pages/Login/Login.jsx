@@ -1,31 +1,40 @@
-import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import React from "react";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "../../common/api";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
-const Login = () => {
+
+const LoginPage = () => {
   const navigate = useNavigate();
+  const { fetchMe } = useAuth();
 
-  // demo login user
-  const demoUser = {
-    name: "Amit Sharma",
-    role: "HR"
-  };
+  const onSuccess = async (credentialResponse) => {
+    try {
+      const res = await axios.post("/auth/google-login", {
+        token: credentialResponse.credential,
+      });
 
-  const handleLogin = () => {
-    // store user (temporary auth)
-    localStorage.setItem("user", JSON.stringify(demoUser));
-    navigate("/dashboard");
+      localStorage.setItem("token", res.data.token);
+      await fetchMe();
+
+      if (res.data.passwordRequired) {
+        navigate("/set-password");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      alert("Login failed");
+    }
   };
 
   return (
     <div className="login-container">
-      <h2>Onboarding Portal</h2>
-
-      <input placeholder="Email" />
-      <input placeholder="Password" type="password" />
-
-      <button onClick={handleLogin}>Login</button>
+      <h2>Login</h2>
+      <GoogleLogin onSuccess={onSuccess} onError={() => alert("Login Failed")} />
     </div>
   );
 };
 
-export default Login;
+export default LoginPage;
