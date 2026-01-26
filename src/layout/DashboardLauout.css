@@ -1,0 +1,10 @@
+.dashboard-content {
+  padding: 24px 40px;
+  background: var(--bg-color, #fff);
+  min-height: calc(100vh - 64px); /* adjust to navbar height */
+}
+
+.dashboard-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
