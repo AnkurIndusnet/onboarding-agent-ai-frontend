@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/Login/Login";
 import SetPasswordPage from "./pages/Login/SetPasswordPage";
-import ProtectedRoute from "./routes/ProtectedRoute";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import ProtectedRoute from "./routes/ProtectedRoute";
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -18,7 +18,8 @@ function App() {
             <ProtectedRoute>
               <Navbar />
               <Dashboard />
-            </ProtectedRoute>
+             
+              </ProtectedRoute>
           }
         />
 
