@@ -10,7 +10,7 @@ import HrPanel from "../pages/HrPanel/HrPanel";
 import SetPasswordPage from "../pages/Login/SetPasswordPage";
 
 const PrivateRoute = ({ children }) => {
-  const user = localStorage.getItem("user");
+  const user = localStorage.getItem("token");
   return user ? children : <Navigate to="/" />;
 };
 
