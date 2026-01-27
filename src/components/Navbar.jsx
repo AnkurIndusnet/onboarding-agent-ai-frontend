@@ -19,9 +19,7 @@ const Navbar = () => {
     };
   }, [menuOpen]);
 
-  const user = JSON.parse(localStorage.getItem("user") || "null");
 
-  if (!user) return null;
 
   const logout = () => {
   localStorage.removeItem("user");
@@ -47,9 +45,6 @@ const Navbar = () => {
           <NavLink to="/checklist" className="nav-link">Checklist</NavLink>
           <NavLink to="/documents" className="nav-link">Documents</NavLink>
           <NavLink to="/progress" className="nav-link">Progress</NavLink>
-          {user.role === "HR" && (
-            <NavLink to="/hr" className="nav-link">HR Panel</NavLink>
-          )}
         </div>
 
         {/* RIGHT ACTIONS */}
@@ -62,7 +57,7 @@ const Navbar = () => {
             {dark ? "🌞" : "🌙"}
           </button>
 
-          <span className="user">{user.name}</span>
+         
 
           <button className="logout" onClick={logout}>
             Logout
@@ -94,9 +89,6 @@ const Navbar = () => {
         <NavLink to="/checklist" onClick={closeMenu}>Checklist</NavLink>
         <NavLink to="/documents" onClick={closeMenu}>Documents</NavLink>
         <NavLink to="/progress" onClick={closeMenu}>Progress</NavLink>
-        {user.role === "HR" && (
-          <NavLink to="/hr" onClick={closeMenu}>HR Panel</NavLink>
-        )}
       </div>
 
       {/* BREADCRUMBS */}
