@@ -7,6 +7,7 @@ import Checklist from "../pages/Checklist/Checklist";
 import Documents from "../pages/Documents/Documents";
 import Progress from "../pages/Progress/Progress";
 import HrPanel from "../pages/HrPanel/HrPanel";
+import SetPasswordPage from "../pages/Login/SetPasswordPage";
 
 const PrivateRoute = ({ children }) => {
   const user = localStorage.getItem("user");
@@ -18,6 +19,8 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/set-password" element={<SetPasswordPage />} />
+
 
         <Route
           path="/dashboard"
