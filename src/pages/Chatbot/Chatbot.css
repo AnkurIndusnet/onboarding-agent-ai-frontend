@@ -91,3 +91,24 @@
     padding: 10px;
   }
 }
+
+
+.chat-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.chat-actions button {
+  background: var(--accent);
+  color: white;
+  border-radius: 14px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.chat-actions button:last-child {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}

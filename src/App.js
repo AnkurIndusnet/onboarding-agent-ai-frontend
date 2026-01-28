@@ -1,9 +1,12 @@
 
+import { ChecklistProvider } from "./context/ChecklistContext";
 import AppRoutes from "./routes/AppRoutes";
 
 function App() {
   return (
-    <AppRoutes />
+    <ChecklistProvider>
+      <AppRoutes />
+    </ChecklistProvider>
   );
 }
 

@@ -1,59 +1,77 @@
 import { useState } from "react";
+import { useChecklist } from "../../context/ChecklistContext";
 import DocumentModal from "./DocumentModal";
 import FormModal from "./FormModal";
 import "./Checklist.css";
 
 const Checklist = () => {
-  const [checklist, setChecklist] = useState([
-    { id: 1, task: "Submit Aadhaar", type: "DOCUMENT", status: "PENDING" },
-    { id: 2, task: "Fill Bank Details", type: "FORM", status: "PENDING" },
-    { id: 3, task: "Sign NDA", type: "DOCUMENT", status: "COMPLETED" }
-  ]);
-
+  const { checklist, setChecklist } = useChecklist();
   const [activeItem, setActiveItem] = useState(null);
 
-  const markCompleted = (id) => {
+  /**
+   * Mark task completed locally after successful modal action.
+   * Backend call should already be done inside modal.
+   */
+  const markCompleted = (taskId) => {
     setChecklist(prev =>
       prev.map(item =>
-        item.id === id ? { ...item, status: "COMPLETED" } : item
+        item.taskId === taskId
+          ? { ...item, submissionDateTime: new Date().toISOString() }
+          : item
       )
     );
     setActiveItem(null);
   };
 
+  if (!checklist || checklist.length === 0) {
+    return (
+      <div className="checklist">
+        <h2>Onboarding Checklist</h2>
+        <p>No tasks available yet.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="checklist">
       <h2>Onboarding Checklist</h2>
 
-      {checklist.map(item => (
-        <div key={item.id} className="check-item">
-          <span>{item.task}</span>
+      {checklist.map(item => {
+        const isCompleted = !!item.submissionDateTime;
 
-          {item.status === "PENDING" ? (
-            <button onClick={() => setActiveItem(item)}>
-              {item.type === "DOCUMENT" ? "Upload" : "Fill out now"}
-            </button>
-          ) : (
-            <span className="completed">COMPLETED</span>
-          )}
-        </div>
-      ))}
+        return (
+          <div key={item.taskId} className="check-item">
+            <span>{item.task}</span>
 
+            {!isCompleted ? (
+              <button onClick={() => setActiveItem(item)}>
+                {item.type === "DOCUMENT" ? "Upload" : "Proceed"}
+              </button>
+            ) : (
+              <span className="completed">COMPLETED</span>
+            )}
+          </div>
+        );
+      })}
+
+      {/* DOCUMENT MODAL */}
       {activeItem?.type === "DOCUMENT" && (
         <DocumentModal
           item={activeItem}
           onClose={() => setActiveItem(null)}
-          onSuccess={() => markCompleted(activeItem.id)}
+          onSuccess={() => markCompleted(activeItem.taskId)}
         />
       )}
 
-      {activeItem?.type === "FORM" && (
-        <FormModal
-          item={activeItem}
-          onClose={() => setActiveItem(null)}
-          onSuccess={() => markCompleted(activeItem.id)}
-        />
-      )}
+      {/* FORM / ADMIN / SETUP / ORIENTATION */}
+      {activeItem &&
+        activeItem.type !== "DOCUMENT" && (
+          <FormModal
+            item={activeItem}
+            onClose={() => setActiveItem(null)}
+            onSuccess={() => markCompleted(activeItem.taskId)}
+          />
+        )}
     </div>
   );
 };
