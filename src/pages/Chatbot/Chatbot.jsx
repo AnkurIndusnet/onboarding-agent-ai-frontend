@@ -1,125 +1,129 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../common/api";
-import { TASK_ROUTE_MAP } from "../../common/taskRoutes";
-import "./Chatbot.css";
 import { useChecklist } from "../../context/ChecklistContext";
+import "./Chatbot.css";
+
+const CHAT_STATE = {
+  LOADING: "LOADING",
+  SHOW_CHECKLIST: "SHOW_CHECKLIST",
+  NEED_INPUT: "NEED_INPUT",
+  ERROR: "ERROR"
+};
 
 const Chatbot = () => {
   const navigate = useNavigate();
+  const { checklist, setChecklist } = useChecklist();
 
-  const [messages, setMessages] = useState([
-    { from: "bot", text: "Hi 👋 I’ll help you complete your onboarding." }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const { setChecklist } = useChecklist();
+  const [chatState, setChatState] = useState(CHAT_STATE.LOADING);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
-  /**
-   * Pick next actionable task:
-   * 1. submissionDateTime === null
-   * 2. HIGH priority first
-   * 3. Oldest askDateTime first
-   */
-  const pickNextTask = (tasks) => {
-    return tasks
-      .filter(t => !t.submissionDateTime)
-      .sort((a, b) => {
-        if (a.priority !== b.priority) {
-          return a.priority === "HIGH" ? -1 : 1;
+  /* --------------------------------------------------
+     1. AUTO FETCH CHECKLIST ON LOAD
+  -------------------------------------------------- */
+  useEffect(() => {
+    const fetchChecklist = async () => {
+      try {
+        setLoading(true);
+
+        const res = await api.get(
+          "/employee/checklist/fetchCheckList"
+        );
+
+        const tasks = res.data || [];
+
+        if (tasks.length > 0) {
+          setChecklist(tasks);
+          setChatState(CHAT_STATE.SHOW_CHECKLIST);
+
+          setMessages([
+            {
+              from: "bot",
+              text: "Here’s your onboarding checklist. You can proceed anytime.",
+              taskList: tasks
+            }
+          ]);
+        } else {
+          setChatState(CHAT_STATE.NEED_INPUT);
+          setMessages([
+            {
+              from: "bot",
+              text:
+                "I need a little information before creating your onboarding checklist.\n\nWhat is your role?"
+            }
+          ]);
         }
-        return new Date(a.askDateTime) - new Date(b.askDateTime);
-      })[0];
-  };
+      } catch (err) {
+        setChatState(CHAT_STATE.ERROR);
+        setShowErrorModal(true);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchChecklist();
+  }, [setChecklist]);
+
+  /* --------------------------------------------------
+     2. HANDLE USER INPUT (ONLY WHEN NEEDED)
+  -------------------------------------------------- */
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
 
     const userMessage = input;
     setInput("");
-
-    setMessages(prev => [...prev, { from: "user", text: userMessage }]);
     setLoading(true);
 
+    setMessages(prev => [
+      ...prev,
+      { from: "user", text: userMessage }
+    ]);
+
     try {
-      /**
-       * Backend generates checklist (idempotent)
-       */
-      const res = await api.post("/employee/checklist/generate", {
-        message: userMessage
-      });
+      const res = await api.post(
+        "/employee/checklist/generate",
+        { message: userMessage }
+      );
 
-      const tasks = res.data;
+      const tasks = res.data || [];
+
+      if (tasks.length === 0) {
+        setMessages(prev => [
+          ...prev,
+          {
+            from: "bot",
+            text:
+              "I still need more information to generate your checklist. Please try again."
+          }
+        ]);
+        return;
+      }
+
       setChecklist(tasks);
-
-      if (!Array.isArray(tasks) || tasks.length === 0) {
-        setMessages(prev => [
-          ...prev,
-          { from: "bot", text: "I couldn’t find any tasks for you right now." }
-        ]);
-        return;
-      }
-
-      const nextTask = pickNextTask(tasks);
-
-      if (!nextTask) {
-        setMessages(prev => [
-          ...prev,
-          { from: "bot", text: "🎉 You’ve completed all onboarding tasks!" }
-        ]);
-        return;
-      }
+      setChatState(CHAT_STATE.SHOW_CHECKLIST);
 
       setMessages(prev => [
         ...prev,
         {
           from: "bot",
-          text: `Your next task is:\n\n"${nextTask.task}"`,
-          actions: [
-            {
-              label: "Do now",
-              action: "GO",
-              route: TASK_ROUTE_MAP[nextTask.type],
-              taskId: nextTask.taskId
-            },
-            {
-              label: "Do later",
-              action: "LATER",
-              taskId: nextTask.taskId
-            }
-          ]
+          text: "Thanks! I’ve created your onboarding checklist.",
+          taskList: tasks
         }
       ]);
     } catch (err) {
-      setMessages(prev => [
-        ...prev,
-        {
-          from: "bot",
-          text: "❌ Something went wrong while fetching your checklist."
-        }
-      ]);
+      setChatState(CHAT_STATE.ERROR);
+      setShowErrorModal(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAction = async (action) => {
-    if (action.action === "GO") {
-      navigate(action.route, {
-        state: { taskId: action.taskId }
-      });
-    }
-
-    if (action.action === "LATER") {
-      await api.post(`/employee/checklist/${action.taskId}/defer`);
-
-      setMessages(prev => [
-        ...prev,
-        { from: "bot", text: "👍 No problem. We’ll come back to it later." }
-      ]);
-    }
-  };
-
+  /* --------------------------------------------------
+     3. RENDER
+  -------------------------------------------------- */
   return (
     <div className="chatbot-page">
       <h2>Onboarding Assistant</h2>
@@ -128,37 +132,135 @@ const Chatbot = () => {
         <div className="chat-messages">
           {messages.map((m, i) => (
             <div key={i} className={`chat-bubble ${m.from}`}>
-              <div style={{ whiteSpace: "pre-line" }}>{m.text}</div>
+              <div style={{ whiteSpace: "pre-line" }}>
+                {m.text}
+              </div>
 
-              {m.actions && (
-                <div className="chat-actions">
-                  {m.actions.map((a, idx) => (
+              {/* CHECKLIST VIEW */}
+              {m.taskList && (
+                <div className="chat-task-list">
+                  {m.taskList.map(task => {
+                    const completed =
+                      !!task.submissionDateTime;
+
+                    return (
+                      <div
+                        key={task.taskId}
+                        className="chat-task-row"
+                      >
+                        <div>
+                          <strong>{task.task}</strong>
+                          <div className="chat-task-meta">
+                            Asked on{" "}
+                            {new Date(
+                              task.askDateTime
+                            ).toLocaleString()}
+                          </div>
+                        </div>
+
+                        <span
+                          className={`chat-task-status ${
+                            completed
+                              ? "done"
+                              : "pending"
+                          }`}
+                        >
+                          {completed
+                            ? "COMPLETED"
+                            : "PENDING"}
+                        </span>
+                      </div>
+                    );
+                  })}
+
+                  <div className="chat-global-actions">
                     <button
-                      key={idx}
-                      onClick={() => handleAction(a)}
+                      className="primary"
+                      onClick={() =>
+                        navigate("/checklist")
+                      }
                     >
-                      {a.label}
+                      Proceed Now
                     </button>
-                  ))}
+
+                    <button
+                      className="secondary"
+                      onClick={() =>
+                        navigate("/dashboard")
+                      }
+                    >
+                      Do Later
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        <div className="chat-input">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask what to do next…"
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            disabled={loading}
-          />
-          <button onClick={sendMessage} disabled={loading}>
-            {loading ? "…" : "Send"}
-          </button>
-        </div>
+        {/* INPUT ONLY WHEN REQUIRED */}
+        {chatState === CHAT_STATE.NEED_INPUT && (
+          <div className="chat-input">
+            <input
+              value={input}
+              onChange={(e) =>
+                setInput(e.target.value)
+              }
+              placeholder="Type your role…"
+              onKeyDown={(e) =>
+                e.key === "Enter" && sendMessage()
+              }
+              disabled={loading}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={loading}
+            >
+              {loading ? "…" : "Send"}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* ERROR MODAL */}
+      {showErrorModal && (
+        <div className="modal-backdrop modal-opening">
+          <div className="modal modal-opening">
+            <h3>Something went wrong</h3>
+
+            <div className="modal-body">
+              <p>
+                I couldn’t fetch your onboarding checklist
+                right now.
+              </p>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                className="primary"
+                onClick={() => {
+                  setShowErrorModal(false);
+                  setChatState(
+                    CHAT_STATE.LOADING
+                  );
+                  window.location.reload();
+                }}
+              >
+                Try Again
+              </button>
+
+              <button
+                className="secondary"
+                onClick={() =>
+                  navigate("/dashboard")
+                }
+              >
+                Do Later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

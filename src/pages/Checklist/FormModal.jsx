@@ -1,30 +1,59 @@
 import { useEffect, useState } from "react";
+import api from "../../common/api";
 import "./modal.css";
 
 const FormModal = ({ item, onClose, onSuccess }) => {
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [closing, setClosing] = useState(false);
 
+  // 🔹 Fetch form fields dynamically
   useEffect(() => {
-    setTimeout(() => {
-      setFields([
-        { id: 1, label: "IFSC Code", type: "text", status: 0, value: "" },
-        { id: 2, label: "Account Number", type: "text", status: 1, value: "3490908908" },
-        { id: 3, label: "Bank Address", type: "text", status: 0, value: "" }
-      ]);
-      setLoading(false);
-    }, 600);
-  }, []);
+    const fetchForm = async () => {
+      try {
+        const res = await api.get(
+          `/employee/checklist/${item.taskId}/fields`
+        );
+        setFields(res.data);
+      } catch (err) {
+        console.error("Failed to load form");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const updateValue = (id, value) => {
+    fetchForm();
+  }, [item.taskId]);
+
+  const updateValue = (fieldId, value) => {
     setFields(prev =>
-      prev.map(f => (f.id === id ? { ...f, value } : f))
+      prev.map(f =>
+        f.fieldId === fieldId ? { ...f, value } : f
+      )
     );
   };
 
-  const save = () => {
-    setTimeout(onSuccess, 500);
+  const save = async () => {
+    setSubmitting(true);
+
+    try {
+      await api.post(
+        `/employee/checklist/${item.taskId}/form`,
+        {
+          fields: fields.map(f => ({
+            fieldId: f.fieldId,
+            value: f.value
+          }))
+        }
+      );
+
+      onSuccess(); // ✔ updates checklist context
+    } catch (err) {
+      alert("Failed to submit form");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const close = () => {
@@ -32,14 +61,26 @@ const FormModal = ({ item, onClose, onSuccess }) => {
     setTimeout(onClose, 200);
   };
 
+  const isValid =
+    fields.length > 0 &&
+    fields.every(f => !f.required || f.value?.trim());
+
   return (
-    <div className={`modal-backdrop ${closing ? "modal-closing" : "modal-opening"}`}>
-      <div className={`modal ${closing ? "modal-closing" : "modal-opening"}`}>
+    <div
+      className={`modal-backdrop ${
+        closing ? "modal-closing" : "modal-opening"
+      }`}
+    >
+      <div
+        className={`modal ${
+          closing ? "modal-closing" : "modal-opening"
+        }`}
+      >
         <h3>{item.task}</h3>
 
         <div className="modal-body">
           <p className="modal-hint">
-            Fill required details. Read-only fields are already verified.
+            Please complete the required details below.
           </p>
 
           <div className="modal-section">
@@ -47,13 +88,18 @@ const FormModal = ({ item, onClose, onSuccess }) => {
 
             {!loading &&
               fields.map(f => (
-                <div key={f.id} className="form-field">
-                  <label>{f.label}</label>
+                <div key={f.fieldId} className="form-field">
+                  <label>
+                    {f.label}
+                    {f.required && " *"}
+                  </label>
                   <input
-                    type={f.type}
-                    value={f.value}
-                    disabled={f.status === 1}
-                    onChange={(e) => updateValue(f.id, e.target.value)}
+                    type={f.type || "text"}
+                    value={f.value || ""}
+                    disabled={f.readOnly}
+                    onChange={(e) =>
+                      updateValue(f.fieldId, e.target.value)
+                    }
                   />
                 </div>
               ))}
@@ -61,9 +107,13 @@ const FormModal = ({ item, onClose, onSuccess }) => {
         </div>
 
         <div className="modal-footer">
-          <button onClick={save} disabled={loading}>
-            Save & Continue
+          <button
+            onClick={save}
+            disabled={!isValid || submitting}
+          >
+            {submitting ? "Saving…" : "Save & Continue"}
           </button>
+
           <button className="close" onClick={close}>
             Cancel
           </button>
