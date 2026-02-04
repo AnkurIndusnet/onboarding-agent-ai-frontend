@@ -1,32 +1,77 @@
-.login-container {
-  max-width: 380px;
-  margin: 120px auto;
-  padding: 32px;
+/* PAGE BACKGROUND */
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(
+    135deg,
+    #f8fafc,
+    #eef2ff
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* CARD */
+.login-card {
+  width: 100%;
+  max-width: 420px;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-}
-
-.login-container h2 {
+  border-radius: 18px;
+  padding: 40px 36px;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.04);
   text-align: center;
-  margin-bottom: 24px;
+  animation: fadeInUp 0.4s ease;
 }
 
-.login-container input {
-  width: 100%;
-  margin-bottom: 14px;
+/* HEADINGS */
+.login-card h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #111827;
 }
 
-.login-container button {
-  width: 100%;
-  padding: 12px;
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.demo-info {
-  margin-top: 16px;
-  text-align: center;
-  font-size: 12px;
+.subtitle {
+  font-size: 14px;
   color: #6b7280;
+  margin-bottom: 28px;
+}
+
+/* GOOGLE BUTTON WRAPPER */
+.google-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* FOOTER */
+.login-footer {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ANIMATION */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  .login-card h1 {
+    font-size: 22px;
+  }
 }
