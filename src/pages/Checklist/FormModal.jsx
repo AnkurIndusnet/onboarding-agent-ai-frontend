@@ -3,44 +3,62 @@ import api from "../../common/api";
 import "./modal.css";
 
 const FormModal = ({ item, fields, onClose, onSuccess }) => {
-  // Local editable copy
   const [formFields, setFormFields] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [closing, setClosing] = useState(false);
 
-  // Initialize local state from props
+  /* ----------------------------------
+     INIT LOCAL STATE FROM FIELD API
+  ---------------------------------- */
   useEffect(() => {
     setFormFields(
       (fields || []).map(f => ({
-        ...f,
-        value: f.value || ""
+        fieldId: f.fieldId,        // ✅ from FIELD API
+        label: f.label,
+        required: f.required,
+        readOnly: f.readOnly,
+        value: f.value ?? ""
       }))
     );
   }, [fields]);
 
+  /* ----------------------------------
+     UPDATE FIELD VALUE
+  ---------------------------------- */
   const updateValue = (fieldId, value) => {
     setFormFields(prev =>
       prev.map(f =>
-        f.fieldId === fieldId ? { ...f, value } : f
+        f.fieldId === fieldId
+          ? { ...f, value }
+          : f
       )
     );
   };
 
+  /* ----------------------------------
+     SUBMIT FORM (FINAL PAYLOAD)
+  ---------------------------------- */
   const save = async () => {
+    if (submitting) return;
+
     setSubmitting(true);
 
     try {
       await api.post(
-        `/employee/checklist/${item.taskId}/form`,
+        `/employee/checklist/submit`,
         {
-          fields: formFields.map(f => ({
+          taskId: item.taskId,
+          values: formFields.map(f => ({
             fieldId: f.fieldId,
-            value: f.value
+            value:
+              typeof f.value === "string"
+                ? f.value.trim()
+                : f.value
           }))
         }
       );
 
-      onSuccess(); // updates checklist context
+      onSuccess(); 
     } catch (err) {
       alert("Failed to submit form");
     } finally {
@@ -48,15 +66,21 @@ const FormModal = ({ item, fields, onClose, onSuccess }) => {
     }
   };
 
+  /* ----------------------------------
+     CLOSE MODAL
+  ---------------------------------- */
   const close = () => {
     setClosing(true);
     setTimeout(onClose, 200);
   };
 
+  /* ----------------------------------
+     VALIDATION
+  ---------------------------------- */
   const isValid =
     formFields.length > 0 &&
     formFields.every(
-      f => !f.required || f.value?.trim()
+      f => !f.required || String(f.value || "").trim()
     );
 
   return (
@@ -92,7 +116,7 @@ const FormModal = ({ item, fields, onClose, onSuccess }) => {
                 <input
                   type="text"
                   value={f.value}
-                  disabled={f.readOnly}
+                  disabled={f.readOnly || submitting}
                   onChange={(e) =>
                     updateValue(f.fieldId, e.target.value)
                   }
@@ -110,7 +134,11 @@ const FormModal = ({ item, fields, onClose, onSuccess }) => {
             {submitting ? "Saving…" : "Save & Continue"}
           </button>
 
-          <button className="close" onClick={close}>
+          <button
+            className="close"
+            onClick={close}
+            disabled={submitting}
+          >
             Cancel
           </button>
         </div>

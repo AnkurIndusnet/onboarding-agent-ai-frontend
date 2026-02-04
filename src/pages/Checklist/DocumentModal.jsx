@@ -23,7 +23,11 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
   const [stream, setStream] = useState(null);
 
   const [processing, setProcessing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [closing, setClosing] = useState(false);
+
+  // 🔥 FINAL COLLECTED VALUES (FOR SUBMIT)
+  const [collectedValues, setCollectedValues] = useState([]);
 
   /* ----------------------------------
      INIT DOCUMENT STATE
@@ -52,6 +56,8 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
      CAMERA CONTROLS
   ---------------------------------- */
   const openCamera = async (field) => {
+    if (processing) return;
+
     const documentType = resolveDocumentType(field.label);
     if (!documentType) {
       alert(`No documentType mapping for "${field.label}"`);
@@ -78,7 +84,7 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
   };
 
   /* ----------------------------------
-     CAMERA CAPTURE + VALIDATE
+     CAMERA CAPTURE
   ---------------------------------- */
   const capture = async () => {
     if (!videoRef.current || !canvasRef.current || !activeField) return;
@@ -94,7 +100,6 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
 
     canvas.toBlob(async (blob) => {
       if (!blob) return;
-
       await uploadAndValidate(blob, activeField);
     }, "image/jpeg", 0.7);
   };
@@ -103,7 +108,7 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
      FILE UPLOAD (JPEG ONLY)
   ---------------------------------- */
   const handleFileUpload = async (file, field) => {
-    if (!file) return;
+    if (processing) return;
 
     if (!["image/jpeg", "image/jpg"].includes(file.type)) {
       alert("Only JPEG images are allowed");
@@ -124,6 +129,7 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
   ---------------------------------- */
   const uploadAndValidate = async (fileOrBlob, field) => {
     setProcessing(true);
+    setUploadProgress(0);
 
     try {
       const formData = new FormData();
@@ -133,9 +139,44 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
       const res = await api.post(
         "/employee/document/validate",
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: (e) => {
+            if (e.total) {
+              const percent = Math.round((e.loaded * 100) / e.total);
+              setUploadProgress(percent);
+            }
+          }
+        }
       );
 
+      const validation = res.data;
+
+      /* -------------------------------
+         STORE EXTRACTED VALUES (JSON)
+      -------------------------------- */
+      if (validation?.extractedFields) {
+              setCollectedValues(prev => {
+          // remove old value for same field
+          const filtered = prev.filter(
+            v => v.fieldId !== field.fieldId
+          );
+
+          return [
+            ...filtered,
+            {
+              fieldId: field.fieldId,  
+              value: validation.extractedFields.id,
+            }
+          ];
+        }); 
+
+      
+      }
+
+      /* -------------------------------
+         UPDATE UI STATE
+      -------------------------------- */
       setDocs(prev =>
         prev.map(d =>
           d.fieldId === field.fieldId
@@ -143,7 +184,7 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
                 ...d,
                 uploaded: true,
                 preview: URL.createObjectURL(fileOrBlob),
-                validation: res.data
+                validation
               }
             : d
         )
@@ -152,11 +193,14 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
       alert("Document validation failed");
     } finally {
       setProcessing(false);
+      setUploadProgress(0);
       setActiveField(null);
     }
   };
 
   const recapture = (field) => {
+    if (processing) return;
+
     setDocs(prev =>
       prev.map(d =>
         d.fieldId === field.fieldId
@@ -168,9 +212,18 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
   };
 
   /* ----------------------------------
-     FINAL SAVE
+     FINAL SAVE (REAL PAYLOAD)
   ---------------------------------- */
-  const save = () => {
+  const save = async () => {
+    const payload = {
+      taskId: item.taskId,
+      values: collectedValues
+    };
+
+    console.log("FINAL SUBMIT PAYLOAD:", payload);
+
+     await api.post(`/employee/checklist/submit`, payload);
+
     onSuccess();
   };
 
@@ -193,6 +246,16 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
           <p className="modal-hint">
             Upload the required documents below (JPEG only).
           </p>
+
+          {processing && (
+            <div className="upload-progress">
+              <div
+                className="upload-bar"
+                style={{ width: `${uploadProgress}%` }}
+              />
+              <span>{uploadProgress}%</span>
+            </div>
+          )}
 
           <div className="modal-section">
             {docs.map(field => (
@@ -235,7 +298,6 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
                 {field.preview && (
                   <div className="doc-preview">
                     <img src={field.preview} alt={field.label} />
-
                     <button
                       className="btn recapture"
                       onClick={() => recapture(field)}
@@ -300,7 +362,7 @@ const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
           </div>
         )}
 
-        {/* HIDDEN FILE INPUT */}
+        {/* FILE INPUT */}
         <input
           ref={fileInputRef}
           type="file"
