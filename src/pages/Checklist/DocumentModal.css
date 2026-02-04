@@ -1,0 +1,181 @@
+/* =========================
+   DOCUMENT LIST
+========================= */
+
+.doc-item {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+  transition: border 0.2s ease;
+}
+
+.doc-item.done {
+  border-color: #22c55e;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.doc-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.doc-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn.capture,
+.btn.upload {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+.btn.capture {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn.upload {
+  background: transparent;
+  border: 1px dashed var(--accent);
+  color: var(--accent);
+}
+
+/* =========================
+   PREVIEW
+========================= */
+
+.doc-preview {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.doc-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #000;
+}
+
+/* =========================
+   RECAPTURE
+========================= */
+
+.btn.recapture {
+  align-self: flex-start;
+  background: transparent;
+  color: var(--accent);
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+/* =========================
+   VALIDATION ERROR
+========================= */
+
+.doc-error {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ef4444;
+}
+
+/* =========================
+   CAMERA OVERLAY
+========================= */
+
+.camera-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.camera-modal {
+  background: #000;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 420px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.camera-modal video {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.camera-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.camera-actions .btn {
+  flex: 1;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.modal-footer {
+  padding: 12px 20px;
+  display: flex;
+  gap: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.modal-footer .btn {
+  flex: 1;
+}
+
+/* =========================
+   MOBILE TWEAKS
+========================= */
+
+@media (max-width: 768px) {
+  .doc-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .doc-actions {
+    width: 100%;
+  }
+
+  .doc-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+}

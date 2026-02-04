@@ -1,69 +1,188 @@
-import { useRef, useState } from "react";
-import Tesseract from "tesseract.js";
-import "./modal.css";
+import { useRef, useState, useEffect } from "react";
+import api from "../../common/api";
+import { resolveDocumentType } from "../../common/documentTypeMapper";
+import "./DocumentModal.css";
 import {
   Camera,
   Aperture,
   RotateCcw,
   Save,
-  X
+  X,
+  Upload
 } from "lucide-react";
 
-
-const DocumentModal = ({ item, onClose, onSuccess }) => {
+const DocumentUpload = ({ item, fields, onClose, onSuccess }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-  const [image, setImage] = useState(null);
-  const [ocrText, setOcrText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [cameraStarted, setCameraStarted] = useState(false);
+  const [docs, setDocs] = useState([]);
+  const [activeField, setActiveField] = useState(null);
+
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [stream, setStream] = useState(null);
+
+  const [processing, setProcessing] = useState(false);
   const [closing, setClosing] = useState(false);
 
-  const startCamera = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoRef.current.srcObject = stream;
-    setCameraStarted(true);
+  /* ----------------------------------
+     INIT DOCUMENT STATE
+  ---------------------------------- */
+  useEffect(() => {
+    setDocs(
+      (fields || []).map(f => ({
+        ...f,
+        uploaded: false,
+        preview: null,
+        validation: null
+      }))
+    );
+  }, [fields]);
+
+  /* ----------------------------------
+     ATTACH STREAM SAFELY
+  ---------------------------------- */
+  useEffect(() => {
+    if (cameraOpen && videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [cameraOpen, stream]);
+
+  /* ----------------------------------
+     CAMERA CONTROLS
+  ---------------------------------- */
+  const openCamera = async (field) => {
+    const documentType = resolveDocumentType(field.label);
+    if (!documentType) {
+      alert(`No documentType mapping for "${field.label}"`);
+      return;
+    }
+
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: true
+      });
+
+      setActiveField({ ...field, documentType });
+      setStream(mediaStream);
+      setCameraOpen(true);
+    } catch {
+      alert("Camera access denied");
+    }
   };
 
   const stopCamera = () => {
-    videoRef.current?.srcObject?.getTracks().forEach(t => t.stop());
+    stream?.getTracks().forEach(t => t.stop());
+    setStream(null);
+    setCameraOpen(false);
   };
 
-  const capture = () => {
+  /* ----------------------------------
+     CAMERA CAPTURE + VALIDATE
+  ---------------------------------- */
+  const capture = async () => {
+    if (!videoRef.current || !canvasRef.current || !activeField) return;
+
     const video = videoRef.current;
     const canvas = canvasRef.current;
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d").drawImage(video, 0, 0);
+
     stopCamera();
-    setCameraStarted(false);
-    processOCR(canvas.toDataURL("image/png"));
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+
+      await uploadAndValidate(blob, activeField);
+    }, "image/jpeg", 0.7);
   };
 
-  const processOCR = async (img) => {
-    setImage(img);
-    setLoading(true);
-    const res = await Tesseract.recognize(img, "eng");
-    setOcrText(res.data.text);
-    setLoading(false);
+  /* ----------------------------------
+     FILE UPLOAD (JPEG ONLY)
+  ---------------------------------- */
+  const handleFileUpload = async (file, field) => {
+    if (!file) return;
+
+    if (!["image/jpeg", "image/jpg"].includes(file.type)) {
+      alert("Only JPEG images are allowed");
+      return;
+    }
+
+    const documentType = resolveDocumentType(field.label);
+    if (!documentType) {
+      alert(`No documentType mapping for "${field.label}"`);
+      return;
+    }
+
+    await uploadAndValidate(file, { ...field, documentType });
   };
 
-  const recapture = () => {
-    setImage(null);
-    setOcrText("");
-    startCamera();
+  /* ----------------------------------
+     SHARED UPLOAD + VALIDATION
+  ---------------------------------- */
+  const uploadAndValidate = async (fileOrBlob, field) => {
+    setProcessing(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", fileOrBlob);
+      formData.append("documentType", field.documentType);
+
+      const res = await api.post(
+        "/employee/document/validate",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      setDocs(prev =>
+        prev.map(d =>
+          d.fieldId === field.fieldId
+            ? {
+                ...d,
+                uploaded: true,
+                preview: URL.createObjectURL(fileOrBlob),
+                validation: res.data
+              }
+            : d
+        )
+      );
+    } catch {
+      alert("Document validation failed");
+    } finally {
+      setProcessing(false);
+      setActiveField(null);
+    }
   };
 
+  const recapture = (field) => {
+    setDocs(prev =>
+      prev.map(d =>
+        d.fieldId === field.fieldId
+          ? { ...d, uploaded: false, preview: null, validation: null }
+          : d
+      )
+    );
+    openCamera(field);
+  };
+
+  /* ----------------------------------
+     FINAL SAVE
+  ---------------------------------- */
   const save = () => {
-    setTimeout(onSuccess, 500);
+    onSuccess();
   };
 
   const close = () => {
     setClosing(true);
-    setTimeout(onClose, 200);
     stopCamera();
+    setTimeout(onClose, 200);
   };
+
+  const allRequiredUploaded = docs.every(
+    d => !d.required || d.uploaded
+  );
 
   return (
     <div className={`modal-backdrop ${closing ? "modal-closing" : "modal-opening"}`}>
@@ -72,86 +191,134 @@ const DocumentModal = ({ item, onClose, onSuccess }) => {
 
         <div className="modal-body">
           <p className="modal-hint">
-            Capture a clear photo of your Aadhaar card.
+            Upload the required documents below (JPEG only).
           </p>
 
           <div className="modal-section">
-            {!image ? (
-              <div className="camera-frame">
-                <video ref={videoRef} autoPlay playsInline muted />
-                <div className="camera-actions">
-                  {!cameraStarted ? (
-                   <button
-                    className="btn primary mobile-icon-only"
-                    onClick={startCamera}
-                  >
-                    <Camera size={16} />
-                    <span>Open Camera</span>
-                  </button>
-                  ) : (
-                   <button
-                    className="btn primary mobile-icon-only"
-                    onClick={capture}
-                  >
-                    <Aperture size={16} />
-                    <span>Capture</span>
-                  </button>
+            {docs.map(field => (
+              <div
+                key={field.fieldId}
+                className={`doc-item ${field.uploaded ? "done" : ""}`}
+              >
+                <div className="doc-header">
+                  <span className="doc-title">
+                    {field.label}
+                    {field.required && " *"}
+                  </span>
+
+                  {!field.uploaded && (
+                    <div className="doc-actions">
+                      <button
+                        className="btn capture"
+                        onClick={() => openCamera(field)}
+                        disabled={processing}
+                      >
+                        <Camera size={14} />
+                        Capture
+                      </button>
+
+                      <button
+                        className="btn upload"
+                        onClick={() => {
+                          setActiveField(field);
+                          fileInputRef.current.click();
+                        }}
+                        disabled={processing}
+                      >
+                        <Upload size={14} />
+                        Upload
+                      </button>
+                    </div>
                   )}
                 </div>
+
+                {field.preview && (
+                  <div className="doc-preview">
+                    <img src={field.preview} alt={field.label} />
+
+                    <button
+                      className="btn recapture"
+                      onClick={() => recapture(field)}
+                    >
+                      <RotateCcw size={14} />
+                      Re-capture
+                    </button>
+                  </div>
+                )}
+
+                {field.validation && !field.validation.valid && (
+                  <div className="doc-error">
+                    {field.validation.issues.join(", ")}
+                  </div>
+                )}
               </div>
-            ) : (
-              <>
-                <div className="image-preview">
-                  <img src={image} alt="Captured Aadhaar" />
-                </div>
-
-               <button
-                className="btn warning mobile-icon-only"
-                onClick={recapture}
-              >
-                <RotateCcw size={16} />
-                <span>Re-capture</span>
-              </button>
-              </>
-            )}
-
-            <canvas ref={canvasRef} hidden />
-
-            {loading && <p>Extracting text…</p>}
-
-            {ocrText && (
-              <div className="ocr-result">
-                <label>Extracted Text</label>
-                <textarea
-                  value={ocrText}
-                  onChange={(e) => setOcrText(e.target.value)}
-                />
-              </div>
-            )}
+            ))}
           </div>
         </div>
 
-       <div className="modal-footer">
-         <button
-            className="btn success mobile-icon-only"
+        <div className="modal-footer">
+          <button
+            className="btn success"
             onClick={save}
-            disabled={!ocrText || loading}
+            disabled={!allRequiredUploaded || processing}
           >
             <Save size={16} />
-            <span>Save & Continue</span>
+            Save & Continue
           </button>
 
-          <button
-            className="btn secondary mobile-icon-only"
-            onClick={close}
-          >
+          <button className="btn secondary" onClick={close}>
             <X size={16} />
-            <span>Cancel</span>
+            Cancel
           </button>
         </div>
+
+        {/* CAMERA OVERLAY */}
+        {cameraOpen && (
+          <div className="camera-overlay">
+            <div className="camera-modal">
+              <video ref={videoRef} autoPlay playsInline muted />
+
+              <div className="camera-actions">
+                <button
+                  className="btn primary"
+                  onClick={capture}
+                  disabled={processing}
+                >
+                  <Aperture size={16} />
+                  Capture
+                </button>
+
+                <button
+                  className="btn secondary"
+                  onClick={stopCamera}
+                >
+                  <X size={16} />
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* HIDDEN FILE INPUT */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/jpg"
+          hidden
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file && activeField) {
+              handleFileUpload(file, activeField);
+            }
+            e.target.value = "";
+          }}
+        />
+
+        <canvas ref={canvasRef} hidden />
       </div>
     </div>
   );
 };
 
-export default DocumentModal;
+export default DocumentUpload;

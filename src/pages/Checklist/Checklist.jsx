@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { useChecklist } from "../../context/ChecklistContext";
+import api from "../../common/api";
 import DocumentModal from "./DocumentModal";
 import FormModal from "./FormModal";
 import "./Checklist.css";
 
 const Checklist = () => {
   const { checklist, setChecklist } = useChecklist();
-  const [activeItem, setActiveItem] = useState(null);
 
-  /**
-   * Mark task completed locally after successful modal action.
-   * Backend call should already be done inside modal.
-   */
+  const [activeItem, setActiveItem] = useState(null);
+  const [activeFields, setActiveFields] = useState([]);
+  const [activeMode, setActiveMode] = useState(null); // FORM | DOCUMENT
+  const [loading, setLoading] = useState(false);
+
   const markCompleted = (taskId) => {
     setChecklist(prev =>
       prev.map(item =>
@@ -20,7 +21,51 @@ const Checklist = () => {
           : item
       )
     );
+    closeModal();
+  };
+
+  const closeModal = () => {
     setActiveItem(null);
+    setActiveFields([]);
+    setActiveMode(null);
+  };
+
+  /**
+   * 🔥 THIS IS THE FIX
+   * Fetch fields and decide modal type dynamically
+   */
+  const proceedTask = async (item) => {
+    try {
+      setLoading(true);
+
+      const res = await api.get(
+        `/employee/checklist/${item.taskId}/fields`
+      );
+
+      const fields = res.data || [];
+
+      if (fields.length === 0) {
+        alert("No fields configured for this task");
+        return;
+      }
+
+      const hasDocument = fields.some(f => f.type === "DOCUMENT");
+      const hasText = fields.some(f => f.type === "TEXT");
+
+      if (hasDocument && !hasText) {
+        setActiveMode("DOCUMENT");
+      } else {
+        // TEXT or mixed → FORM (future-proof)
+        setActiveMode("FORM");
+      }
+
+      setActiveFields(fields);
+      setActiveItem(item);
+    } catch (err) {
+      alert("Failed to load task details");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!checklist || checklist.length === 0) {
@@ -44,8 +89,11 @@ const Checklist = () => {
             <span>{item.task}</span>
 
             {!isCompleted ? (
-              <button onClick={() => setActiveItem(item)}>
-                {item.type === "DOCUMENT" ? "Upload" : "Proceed"}
+              <button
+                disabled={loading}
+                onClick={() => proceedTask(item)}
+              >
+                Proceed
               </button>
             ) : (
               <span className="completed">COMPLETED</span>
@@ -55,23 +103,24 @@ const Checklist = () => {
       })}
 
       {/* DOCUMENT MODAL */}
-      {activeItem?.type === "DOCUMENT" && (
+      {activeMode === "DOCUMENT" && (
         <DocumentModal
           item={activeItem}
-          onClose={() => setActiveItem(null)}
+          fields={activeFields}
+          onClose={closeModal}
           onSuccess={() => markCompleted(activeItem.taskId)}
         />
       )}
 
-      {/* FORM / ADMIN / SETUP / ORIENTATION */}
-      {activeItem &&
-        activeItem.type !== "DOCUMENT" && (
-          <FormModal
-            item={activeItem}
-            onClose={() => setActiveItem(null)}
-            onSuccess={() => markCompleted(activeItem.taskId)}
-          />
-        )}
+      {/* FORM MODAL */}
+      {activeMode === "FORM" && (
+        <FormModal
+          item={activeItem}
+          fields={activeFields}
+          onClose={closeModal}
+          onSuccess={() => markCompleted(activeItem.taskId)}
+        />
+      )}
     </div>
   );
 };

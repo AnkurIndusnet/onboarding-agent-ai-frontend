@@ -1,33 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../common/api";
 import "./modal.css";
 
-const FormModal = ({ item, onClose, onSuccess }) => {
-  const [fields, setFields] = useState([]);
-  const [loading, setLoading] = useState(true);
+const FormModal = ({ item, fields, onClose, onSuccess }) => {
+  // Local editable copy
+  const [formFields, setFormFields] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [closing, setClosing] = useState(false);
 
-  // 🔹 Fetch form fields dynamically
+  // Initialize local state from props
   useEffect(() => {
-    const fetchForm = async () => {
-      try {
-        const res = await api.get(
-          `/employee/checklist/${item.taskId}/fields`
-        );
-        setFields(res.data);
-      } catch (err) {
-        console.error("Failed to load form");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchForm();
-  }, [item.taskId]);
+    setFormFields(
+      (fields || []).map(f => ({
+        ...f,
+        value: f.value || ""
+      }))
+    );
+  }, [fields]);
 
   const updateValue = (fieldId, value) => {
-    setFields(prev =>
+    setFormFields(prev =>
       prev.map(f =>
         f.fieldId === fieldId ? { ...f, value } : f
       )
@@ -41,14 +33,14 @@ const FormModal = ({ item, onClose, onSuccess }) => {
       await api.post(
         `/employee/checklist/${item.taskId}/form`,
         {
-          fields: fields.map(f => ({
+          fields: formFields.map(f => ({
             fieldId: f.fieldId,
             value: f.value
           }))
         }
       );
 
-      onSuccess(); // ✔ updates checklist context
+      onSuccess(); // updates checklist context
     } catch (err) {
       alert("Failed to submit form");
     } finally {
@@ -62,8 +54,10 @@ const FormModal = ({ item, onClose, onSuccess }) => {
   };
 
   const isValid =
-    fields.length > 0 &&
-    fields.every(f => !f.required || f.value?.trim());
+    formFields.length > 0 &&
+    formFields.every(
+      f => !f.required || f.value?.trim()
+    );
 
   return (
     <div
@@ -84,25 +78,27 @@ const FormModal = ({ item, onClose, onSuccess }) => {
           </p>
 
           <div className="modal-section">
-            {loading && <p>Loading form…</p>}
+            {formFields.length === 0 && (
+              <p>No fields configured for this task.</p>
+            )}
 
-            {!loading &&
-              fields.map(f => (
-                <div key={f.fieldId} className="form-field">
-                  <label>
-                    {f.label}
-                    {f.required && " *"}
-                  </label>
-                  <input
-                    type={f.type || "text"}
-                    value={f.value || ""}
-                    disabled={f.readOnly}
-                    onChange={(e) =>
-                      updateValue(f.fieldId, e.target.value)
-                    }
-                  />
-                </div>
-              ))}
+            {formFields.map(f => (
+              <div key={f.fieldId} className="form-field">
+                <label>
+                  {f.label}
+                  {f.required && " *"}
+                </label>
+
+                <input
+                  type="text"
+                  value={f.value}
+                  disabled={f.readOnly}
+                  onChange={(e) =>
+                    updateValue(f.fieldId, e.target.value)
+                  }
+                />
+              </div>
+            ))}
           </div>
         </div>
 
