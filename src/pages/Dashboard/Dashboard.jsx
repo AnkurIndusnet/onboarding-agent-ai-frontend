@@ -2,11 +2,11 @@ import HRDashboard from "./HRDashboard";
 import UserDashboard from "./UserDashboard";
 
 const Dashboard = () => {
-  // const user = JSON.parse(localStorage.getItem("user"));
+  const role = sessionStorage.getItem("role");
 
-  // if (user?.role === "HR") {
-  //   return <HRDashboard />;
-  // }
+  if (role === "HR") {
+    return <HRDashboard />;
+  } 
 
   return <UserDashboard />;
 };

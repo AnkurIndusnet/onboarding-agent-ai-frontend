@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await api.get("/auth/me");
       setUser(res.data);
+      sessionStorage.setItem("role", res.data.designation);
     } catch (err) {
       localStorage.removeItem("token");
       setUser(null);

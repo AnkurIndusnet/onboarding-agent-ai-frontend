@@ -9,6 +9,7 @@ const Navbar = () => {
   const location = useLocation();
   const { dark, setDark } = useContext(ThemeContext);
   const [menuOpen, setMenuOpen] = useState(false);
+  const role = sessionStorage.getItem("role");
 
   /* ✅ Hooks MUST be called unconditionally */
   useEffect(() => {
@@ -45,8 +46,9 @@ const Navbar = () => {
           <NavLink to="/checklist" className="nav-link">Checklist</NavLink>
           <NavLink to="/documents" className="nav-link">Documents</NavLink>
           <NavLink to="/progress" className="nav-link">Progress</NavLink>
-        </div>
+          {role === "HR" && <NavLink to="/hr" className="nav-link">HR Panel</NavLink>}
 
+        </div>
         {/* RIGHT ACTIONS */}
         <div className="navbar-right">
           <button
@@ -89,6 +91,8 @@ const Navbar = () => {
         <NavLink to="/checklist" onClick={closeMenu}>Checklist</NavLink>
         <NavLink to="/documents" onClick={closeMenu}>Documents</NavLink>
         <NavLink to="/progress" onClick={closeMenu}>Progress</NavLink>
+        {role === "HR" && <NavLink to="/hr" onClick={closeMenu}>HR Panel</NavLink>}
+
       </div>
 
       {/* BREADCRUMBS */}
