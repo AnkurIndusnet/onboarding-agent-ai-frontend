@@ -140,8 +140,8 @@ const Chatbot = () => {
               {m.taskList && (
                 <div className="chat-task-list">
                   {m.taskList.map(task => {
-                    const completed =
-                      !!task.submissionDateTime;
+                    const status =
+                      !!task.status;
 
                     return (
                       <div
@@ -160,14 +160,11 @@ const Chatbot = () => {
 
                         <span
                           className={`chat-task-status ${
-                            completed
-                              ? "done"
-                              : "pending"
+                            task.status
+                             
                           }`}
                         >
-                          {completed
-                            ? "COMPLETED"
-                            : "PENDING"}
+                          {task.status}
                         </span>
                       </div>
                     );
