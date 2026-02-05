@@ -7,10 +7,18 @@ import AddAnnouncementModal from "./AddAnnouncementModal";
 import "./HRDashboard.css";
 
 const hiringTrend = [
-  { month: "Jan", hires: 5 },
-  { month: "Feb", hires: 8 },
-  { month: "Mar", hires: 12 },
-  { month: "Apr", hires: 9 }
+  { month: "Jan", hires: 150 },
+  { month: "Feb", hires: 352 },
+  { month: "Mar", hires: 120 },
+  { month: "Apr", hires: 90 },
+   { month: "May", hires: 105 },
+  { month: "June", hires: 288 },
+  { month: "July", hires: 128 },
+  { month: "August", hires: 129 },
+   { month: "September", hires: 155 },
+  { month: "October", hires: 138 },
+  { month: "November", hires: 122 },
+  { month: "December", hires: 209 }
 ];
 
 const HRDashboard = () => {
