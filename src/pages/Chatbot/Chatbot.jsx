@@ -85,7 +85,7 @@ const Chatbot = () => {
     try {
       const res = await api.post(
         "/employee/checklist/generate",
-        { message: userMessage }
+        { role: userMessage }
       );
 
       const tasks = res.data || [];
